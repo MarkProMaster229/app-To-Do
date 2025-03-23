@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Example</title>
+</head>
+<body>
+    <form method="POST">
+        <input type="text" name="inputField" placeholder="Enter something">
+        <button type="submit">Submit</button>
+    </form>
+
+    {% if post %}
+        <h2>You entered: {{ post }}</h2>
+    {% endif %}
+</body>
+</html>
