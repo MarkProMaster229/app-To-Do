@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добро пожаловать в Менеджер Задач</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .welcome-container, .login-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, color 0.3s, opacity 0.5s;
+            text-align: center;
+        }
+        .login-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #343a40;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        .feature-box {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 15px;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            background-color: #e7f2fc;
+            color: #007bff;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .feature-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .feature-box .checkmark {
+            margin-right: 10px;
+            font-size: 1.5em;
+        }
+        .login-container input, .login-container button {
+            width: 100%;
+            max-width: 300px;
+            margin: 10px 0;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+        }
+        .login-container button {
+            background-color: #0069d9;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .login-container button:hover {
+            background-color: #0056b3;
+        }
+        .login-container button:active {
+            transform: scale(0.95);
+        }
+        .create-account-button {
+            background-color: #218838;
+        }
+        .create-account-button:hover {
+            background-color: #1e7e34;
+        }
+        .theme-toggle-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+        .theme-toggle-button:hover {
+            background-color: #0056b3;
+        }
+        .start-button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .start-button:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+        .start-button:active {
+            transform: scale(0.95);
+        }
+        /* Ночная тема */
+        body.night {
+            background-color: #343a40;
+            color: #fff;
+        }
+        .welcome-container.night, .login-container.night {
+            background-color: #495057;
+            color: #fff;
+        }
+        h1.night {
+            color: #fff;
+        }
+        .feature-box.night {
+            border-color: #17a2b8;
+            background-color: #1d2e3b;
+            color: #17a2b8;
+        }
+        .login-container.night input {
+            background-color: #6c757d;
+            color: #fff;
+            border-color: #565e65;
+        }
+        .login-container.night button {
+            background-color: #c0c0c0;
+            color: #000;
+        }
+        .login-container.night button:hover {
+            background-color: #e0e0e0;
+        }
+        .theme-toggle-button.night {
+            background-color: #6c757d;
+            color: #000;
+        }
+        .theme-toggle-button.night:hover {
+            background-color: #9a9a9a;
+        }
+        .start-button.night {
+            background-color: #155724;
+            color: #fff;
+        }
+        .start-button.night:hover {
+            background-color: #14461a;
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-container">
+        <h1>Добро пожаловать в Менеджер Задач</h1>
+        <div class="feature-box">
+            <span class="checkmark">&#10003;</span>
+            <span>Удобное управление задачами</span>
+        </div>
+        <div class="feature-box">
+            <span class="checkmark">&#10003;</span>
+            <span>Красивый интееерфейс ЙОУ</span>
+        </div>
+        <div class="feature-box">
+            <span class="checkmark">&#10003;</span>
+            <span>Поддержка ночной и дневной темы!</span>
+        </div>
+        <div class="feature-box">
+            <span class="checkmark">&#10003;</span>
+            <span>Простота использования</span>
+        </div>
+        <button class="start-button" onclick="startUsing()">Начать пользоваться!</button>
+    </div>
+
+<div class="login-container">
+    <h1>Вход в Менеджер Задач</h1>
+    <form id="loginForm" method="POST">  <!-- Добавил method="POST" -->
+        <input type="text" id="username" name="username" placeholder="Имя пользователя" required>
+        <input type="password" id="password" name="password" placeholder="Пароль" required>
+        <button type="submit" name="action" value="login">Войти</button>  <!-- type="submit" вместо button -->
+        <button type="submit" name="action" value="create_account" class="create-account-button">Создать аккаунт</button>
+    </form>
+</div>
+
+    <button id="themeToggle" class="theme-toggle-button">Дневная</button>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        const welcomeContainer = document.querySelector('.welcome-container');
+        const loginContainer = document.querySelector('.login-container');
+        const h1 = document.querySelectorAll('h1');
+        const buttons = document.querySelectorAll('button');
+        const featureBoxes = document.querySelectorAll('.feature-box');
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('night');
+            welcomeContainer.classList.toggle('night');
+            loginContainer.classList.toggle('night');
+            h1.forEach(header => header.classList.toggle('night'));
+            buttons.forEach(button => button.classList.toggle('night'));
+            featureBoxes.forEach(box => box.classList.toggle('night'));
+            themeToggle.textContent = body.classList.contains('night') ? 'Ночная' : 'Дневная';
+        });
+
+        function startUsing() {
+            welcomeContainer.style.opacity = '0';
+            setTimeout(() => {
+                welcomeContainer.style.display = 'none';
+                loginContainer.style.display = 'flex';
+                setTimeout(() => {
+                    loginContainer.style.opacity = '1';
+                }, 50);
+            }, 500);
+        }
+
+
+    </script>
+</body>
+</html>
