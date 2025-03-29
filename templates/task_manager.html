@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Менеджер Задач</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #343a40;
+            color: #fff;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+            background-color: #fff;
+            transition: background-color 0.3s, color 0.3s;
+            overflow-y: auto;
+        }
+        h1 {
+            color: #fff;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        input, button, textarea {
+            margin-bottom: 15px;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        input, textarea {
+            background-color: #f8f9fa;
+            color: #495057;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .task {
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background-color: #f8f9fa;
+            transition: background-color 0.3s, color 0.3s, transform 0.3s, height 0.3s;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            height: 180px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .task.completed {
+            background-color: #d4edda;
+        }
+        .task:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .task input[type="checkbox"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            accent-color: #28a745;
+        }
+        .task span {
+            color: #495057;
+        }
+        .task .resize, .task .edit, .task .delete {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+            color: #007bff;
+        }
+        .task .edit {
+            top: 10px;
+            right: 35px;
+        }
+        .task .delete {
+            top: 10px;
+            right: 10px;
+            color: #dc3545;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .pagination button {
+            margin: 0 5px;
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            background-color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            color: #000;
+        }
+        .pagination button:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .pagination span {
+            margin: 0 10px;
+            font-size: 1em;
+            color: #6c757d;
+        }
+        /* Ночная тема */
+        body.night {
+            background-color: #343a40;
+            color: #fff;
+        }
+        .sidebar.night {
+            background-color: #212529;
+            color: #fff;
+        }
+        .content.night {
+            background-color: #495057;
+            color: #fff;
+        }
+        h1.night {
+            color: #fff;
+        }
+        input.night, textarea.night {
+            background-color: #6c757d;
+            color: #fff;
+            border-color: #565e65;
+        }
+        button.night {
+            background-color: #5a6268;
+            border-color: #565e65;
+        }
+        button.night:hover {
+            background-color: #6c757d;
+        }
+        .task.night {
+            background-color: #495057;
+            color: #fff;
+            border-color: #565e65;
+        }
+        .task.night.completed {
+            background-color: #155724;
+        }
+        .task.night span {
+            color: #fff;
+        }
+        .pagination.night button {
+            color: #fff;
+        }
+        .pagination.night button:hover {
+            background-color: #0056b3;
+            color: #fff;
+        }
+        .pagination.night span {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h1>Менеджер Задач</h1>
+        <form id="taskForm" method="POST" action="/rol">
+            <input type="text" id="taskInput" name="text" placeholder="Введите задачу" required>
+            <input type="date" id="deadlineInput" name="deadline" required>
+            <textarea id="descriptionInput" name="description" placeholder="Описание задачи" rows="3"></textarea>
+            <button type="submit">Добавить Задачу</button>
+        </form>
+        <button id="themeToggle">Дневная</button>
+    </div>
+    <div class="content">
+        <div id="taskList">
+            {% for task in tasks %}
+            <div class="task {% if task.completed %}completed{% endif %}" style="height: {{ task.height }}px">
+                <input type="checkbox" {% if task.completed %}checked{% endif %}
+                       onchange="fetch('/rol?action=toggle&id={{ loop.index0 }}').then(() => location.reload())">
+                <span>{{ task.text }}</span>
+                <span>Дедлайн: {{ task.deadline }}</span>
+                <span>Описание: {{ task.description }}</span>
+                <span class="days-left">Дней до дедлайна: {{ task.days_left }}</span>
+                <span class="resize" onclick="resizeTaskPrompt({{ loop.index0 }})">↕️</span>
+                <span class="edit" onclick="editDescriptionPrompt({{ loop.index0 }})">✏️</span>
+                <span class="delete" onclick="deleteTaskPrompt({{ loop.index0 }})">❌</span>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="pagination">
+            <button onclick="window.location.href='/rol?page={{ current_page - 1 }}'">Назад</button>
+            <span id="pageCounter">Страница {{ current_page }}</span>
+            <button onclick="window.location.href='/rol?page={{ current_page + 1 }}'">Вперед</button>
+        </div>
+    </div>
+
+<script>
+    // Элементы для переключения темы
+    const themeToggle = document.getElementById('themeToggle');
+    const themeElements = [
+        document.body,
+        document.querySelector('.sidebar'),
+        document.querySelector('.content'),
+        document.querySelector('h1'),
+        ...document.querySelectorAll('input, textarea, button, .pagination, .task')
+    ];
+
+    // Функция переключения темы
+    function toggleTheme() {
+        const isNight = !document.body.classList.contains('night');
+
+        // Применяем тему ко всем элементам
+        themeElements.forEach(el => {
+            if (el) el.classList.toggle('night', isNight);
+        });
+
+        // Обновляем текст кнопки
+        themeToggle.textContent = isNight ? 'Дневная' : 'Ночная';
+
+        // Сохраняем в localStorage и отправляем на сервер
+        localStorage.setItem('night_mode', isNight);
+        updateServerTheme(isNight);
+    }
+
+    // Отправка состояния темы на сервер
+    function updateServerTheme(isNight) {
+        fetch('/update_theme', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({night_mode: isNight})
+        });
+    }
+
+    // Проверяем сохраненную тему при загрузке
+    function checkSavedTheme() {
+        const savedTheme = localStorage.getItem('night_mode') === 'true';
+        if (savedTheme) {
+            themeElements.forEach(el => {
+                if (el) el.classList.add('night');
+            });
+            themeToggle.textContent = 'Дневная';
+        }
+    }
+
+    // Обработчики для кнопок задач
+    function resizeTaskPrompt(index) {
+        const newHeight = prompt("Введите новую высоту задачи (в пикселях):");
+        if (newHeight) {
+            const isNight = document.body.classList.contains('night');
+            window.location.href = `/rol?action=resize&id=${index}&height=${newHeight}&night_mode=${isNight}`;
+        }
+    }
+
+    function editDescriptionPrompt(index) {
+        const newDescription = prompt("Редактировать описание:");
+        if (newDescription !== null) {
+            const isNight = document.body.classList.contains('night');
+            window.location.href = `/rol?action=edit&id=${index}&description=${encodeURIComponent(newDescription)}&night_mode=${isNight}`;
+        }
+    }
+
+    function deleteTaskPrompt(index) {
+        if (confirm("Вы действительно хотите удалить эту задачу?")) {
+            const isNight = document.body.classList.contains('night');
+            window.location.href = `/rol?action=delete&id=${index}&confirm=true&night_mode=${isNight}`;
+        }
+    }
+
+    // Инициализация при загрузке
+    document.addEventListener('DOMContentLoaded', () => {
+        checkSavedTheme();
+        themeToggle.addEventListener('click', toggleTheme);
+    });
+</script>
+</body>
+</html>
