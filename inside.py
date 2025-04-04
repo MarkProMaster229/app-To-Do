@@ -1,36 +1,64 @@
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, make_response
+
+
+from flask import Flask, render_template, request, redirect, url_for, make_response, flash
 import os
+from connector import DBConnector
 
 app = Flask(__name__)
+app.secret_key = 'your-secret-key-here'
+db = DBConnector()  # Инициализация подключения
+
 tasks = []
 
 @app.route('/', methods=['GET', 'POST'])
 def start():
+    error = None
+    message = None
+    show_login = False
+
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        action = request.form.get('action')  # 'login' или 'create_account'
+        action = request.form.get('action')
 
         if action == 'login':
-            if username == "admin" and password == "1":
-                return redirect(url_for('task_manager'))  # Перенаправление на /rol
+            if db.check_user(username, password):
+                response = make_response(redirect(url_for('task_manager')))
+                response.set_cookie('username', username)
+                return response
             else:
-                return render_template('helloWeb.html', error="Неверный логин или пароль!")
+                error = "Неверный логин или пароль!"
+                show_login = True
 
         elif action == 'create_account':
-            return render_template('helloWeb.html',
-                                message="услышал тебя!! работаем!. Пока используй: admin / 1")
+            if db.create_user(username, password):
+                message = f"Аккаунт {username} успешно создан!"
+                show_login = True
+            else:
+                error = "Это имя пользователя уже занято!"
+                show_login = False
 
-    return render_template('helloWeb.html')
+    elif request.args.get('action') == 'show_create':
+        show_login = False
 
-
+    theme = request.cookies.get('theme', 'day')
+    return render_template(
+        'helloWeb.html',
+        show_login=show_login,
+        error=error,
+        message=message,
+        theme=theme
+    )
 
 @app.route('/rol', methods=['GET', 'POST'])
 def task_manager():
     global tasks
     night_mode = request.args.get('night_mode') == 'true' or request.cookies.get('night_mode') == 'true'
 
+    # Инициализация tasks при первом обращении
+    if 'tasks' not in globals():
+        tasks = []
 
     if request.method == 'POST':
         task_text = request.form.get('text')
