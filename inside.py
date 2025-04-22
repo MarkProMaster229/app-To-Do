@@ -53,13 +53,15 @@ def start():
 
 @app.route('/rol', methods=['GET', 'POST'])
 def task_manager():
-    global tasks
     night_mode = request.args.get('night_mode') == 'true' or request.cookies.get('night_mode') == 'true'
 
-    # Инициализация tasks при первом обращении
-    if 'tasks' not in globals():
-        tasks = []
+    # Создание таблиц, если они не существуют
 
+    # Получаем имя пользователя из куки
+    username = request.cookies.get('username')
+    user_id = db.get_user_id(username)  # Получаем ID пользователя из базы данных
+
+    # Инициализация списка задач, если пользователь только что зашел (теперь из базы данных)
     if request.method == 'POST':
         task_text = request.form.get('text')
         deadline_str = request.form.get('deadline')
@@ -67,23 +69,21 @@ def task_manager():
 
         if task_text and deadline_str:
             try:
-                deadline = datetime.strptime(deadline_str, '%Y-%m-%d')
-                diff_days = (deadline - datetime.now()).days
+                # Преобразуем строку в дату
+                deadline = datetime.strptime(deadline_str, '%Y-%m-%d').date()
 
-                tasks.append({
-                    'text': task_text,
-                    'deadline': deadline_str,
-                    'description': description,
-                    'days_left': diff_days,
-                    'completed': False,
-                    'height': 180
-                })
+                # Добавляем задачу в базу данных
+                db.create_task(task_text, deadline, description, user_id)
+
+                # Перенаправление после добавления задачи
+                resp = redirect(url_for('task_manager', night_mode=night_mode))
+                resp.set_cookie('night_mode', str(night_mode))
+                return resp
             except ValueError:
                 pass
 
-        resp = redirect(url_for('task_manager', night_mode=night_mode))
-        resp.set_cookie('night_mode', str(night_mode))
-        return resp
+    # Получаем задачи этого пользователя из базы данных
+    tasks = db.get_tasks_by_user_id(user_id)
 
     # Обработка действий
     action = request.args.get('action')
@@ -124,6 +124,9 @@ def task_manager():
     ))
     response.set_cookie('night_mode', str(night_mode))
     return response
+
+
+
 
 
 if __name__ == '__main__':
