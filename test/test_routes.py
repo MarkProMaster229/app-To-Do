@@ -1,4 +1,4 @@
-from inside import app  # Путь к твоему приложению
+from inside import app
 from unittest.mock import patch
 import pytest
 
@@ -8,7 +8,7 @@ def client():
     with app.test_client() as client:
         yield client
 
-@patch('inside.db')  # Здесь также указываем правильный путь
+@patch('inside.db')
 def test_login_success(mock_db, client):
     mock_db.check_user.return_value = True
 
